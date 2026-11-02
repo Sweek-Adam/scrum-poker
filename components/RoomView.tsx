@@ -116,19 +116,29 @@ function Table({
         </Link>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span
-            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium
-              ${
-                room.status === "live"
-                  ? "border-mint-400/30 bg-mint-400/10 text-mint-400"
-                  : room.status === "error"
-                    ? "border-rose-400/30 bg-rose-400/10 text-rose-300"
+          {room.status === "error" ? (
+            <button
+              type="button"
+              onClick={room.reconnect}
+              className="inline-flex items-center gap-2 rounded-full border border-rose-400/40 bg-rose-500/15
+                px-3 py-1.5 text-xs font-medium text-rose-200 transition hover:bg-rose-500/25"
+            >
+              <span className="size-1.5 rounded-full bg-current" />
+              Hors ligne — reconnecter
+            </button>
+          ) : (
+            <span
+              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium
+                ${
+                  room.status === "live"
+                    ? "border-mint-400/30 bg-mint-400/10 text-mint-400"
                     : "border-white/10 bg-white/5 text-white/50"
-              }`}
-          >
-            <span className="size-1.5 rounded-full bg-current" />
-            {room.status === "live" ? "En direct" : room.status === "error" ? "Hors ligne" : "Connexion…"}
-          </span>
+                }`}
+            >
+              <span className="size-1.5 rounded-full bg-current" />
+              {room.status === "live" ? "En direct" : "Connexion…"}
+            </span>
+          )}
 
           <button
             type="button"
@@ -248,7 +258,11 @@ function Table({
       {/* Deck */}
       <section className="mt-6">
         <p className="mb-3 text-center text-xs font-medium uppercase tracking-[0.16em] text-white/35">
-          {room.myVote ? `Ton vote : ${room.myVote}` : "Choisis ta carte"}
+          {room.status === "error"
+            ? "Connexion perdue — nouvelle tentative en cours…"
+            : room.myVote
+              ? `Ton vote : ${room.myVote}`
+              : "Choisis ta carte"}
         </p>
         <div className="flex gap-3 overflow-x-auto px-1 pb-4 pt-5 sm:flex-wrap sm:justify-center sm:overflow-visible">
           {room.deck.map((value) => (

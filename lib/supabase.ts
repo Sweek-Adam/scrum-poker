@@ -27,5 +27,11 @@ export const isConfigured = Boolean(url && anonKey);
  */
 export const supabase = createClient(url ?? "http://localhost", anonKey ?? "public-anon-key", {
   auth: { persistSession: false },
-  realtime: { params: { eventsPerSecond: 20 } },
+  realtime: {
+    params: { eventsPerSecond: 20 },
+    // The default 25s heartbeat means a dead connection can stay invisible for
+    // that long, and cards clicked meanwhile go nowhere. 10s tells the truth
+    // sooner for the cost of one tiny frame every ten seconds.
+    heartbeatIntervalMs: 10_000,
+  },
 });

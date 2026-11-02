@@ -30,8 +30,10 @@ type Broadcast =
 export function useRoom(code: string, name: string) {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [state, setState] = useState<RoomState>(DEFAULT_STATE);
-  const [status, setStatus] = useState<Status>("connecting");
+  const [status, setStatusState] = useState<Status>("connecting");
   const [myVote, setMyVote] = useState<string | null>(null);
+  // Bumping this re-runs the subscription effect, which is how a reconnection happens.
+  const [attempt, setAttempt] = useState(0);
 
   const clientId = useMemo(
     () => (typeof crypto !== "undefined" ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
@@ -46,6 +48,14 @@ export function useRoom(code: string, name: string) {
   const stateRef = useRef(state);
   const participantsRef = useRef(participants);
   const stateAtRef = useRef(0);
+  const statusRef = useRef<Status>("connecting");
+  const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const retryCount = useRef(0);
+
+  const setStatus = useCallback((next: Status) => {
+    statusRef.current = next;
+    setStatusState(next);
+  }, []);
 
   nameRef.current = name;
   stateRef.current = state;
@@ -78,6 +88,7 @@ export function useRoom(code: string, name: string) {
   useEffect(() => {
     if (!code) return;
 
+    let cancelled = false;
     const channel = supabase.channel(`poker:${code}`, {
       config: { presence: { key: clientId }, broadcast: { self: false } },
     });
@@ -123,27 +134,66 @@ export function useRoom(code: string, name: string) {
     });
 
     channel.subscribe((channelStatus) => {
+      if (cancelled) return;
+
       if (channelStatus === "SUBSCRIBED") {
+        retryCount.current = 0;
         setStatus("live");
-        void channel.track({ id: clientId, name: nameRef.current, vote: null, joinedAt });
+        // Re-announce the current vote, not null: a dropped socket must not wipe it.
+        void channel.track({ id: clientId, name: nameRef.current, vote: voteRef.current, joinedAt });
         void channel.send({ type: "broadcast", event: "request_state", payload: { from: clientId } });
-      } else if (channelStatus === "CHANNEL_ERROR" || channelStatus === "TIMED_OUT") {
+        return;
+      }
+
+      if (channelStatus === "CHANNEL_ERROR" || channelStatus === "TIMED_OUT" || channelStatus === "CLOSED") {
         setStatus("error");
+        // Retry on our own, with backoff, so a sleeping laptop or a wifi switch
+        // does not leave the room stuck until someone reloads the page.
+        const delay = Math.min(1000 * 2 ** retryCount.current, 15000);
+        retryCount.current += 1;
+        retryTimer.current = setTimeout(() => {
+          if (!cancelled) setAttempt((previous) => previous + 1);
+        }, delay);
       }
     });
 
     return () => {
+      cancelled = true;
+      if (retryTimer.current) clearTimeout(retryTimer.current);
       channelRef.current = null;
       void supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [code, clientId, joinedAt]);
+  }, [code, clientId, joinedAt, attempt]);
 
   // Renaming mid-session should show up for everyone.
   useEffect(() => {
     if (status !== "live") return;
     void channelRef.current?.track({ id: clientId, name, vote: voteRef.current, joinedAt });
   }, [name, status, clientId, joinedAt]);
+
+  const reconnect = useCallback(() => {
+    if (retryTimer.current) clearTimeout(retryTimer.current);
+    retryCount.current = 0;
+    setStatus("connecting");
+    setAttempt((previous) => previous + 1);
+  }, [setStatus]);
+
+  // Coming back from a closed lid or a dead wifi should not need a page reload.
+  useEffect(() => {
+    const kick = () => {
+      if (statusRef.current !== "live") reconnect();
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") kick();
+    };
+    window.addEventListener("online", kick);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("online", kick);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [reconnect]);
 
   const vote = useCallback((value: string) => track(voteRef.current === value ? null : value), [track]);
 
@@ -182,5 +232,6 @@ export function useRoom(code: string, name: string) {
     resetVotes,
     clearRoom,
     setDeck,
+    reconnect,
   };
 }
