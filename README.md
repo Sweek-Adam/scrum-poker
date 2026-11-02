@@ -24,16 +24,28 @@ est inactif.
 ## Configurer Supabase (2 minutes)
 
 1. Crée un projet gratuit sur [supabase.com](https://supabase.com/dashboard) (connexion GitHub possible).
-2. **Project Settings → Data API**, copie l'URL du projet et la clé `anon` / `publishable`.
-3. Renseigne-les :
+2. Va dans **Settings → API Keys**
+   (`https://supabase.com/dashboard/project/<ton-projet>/settings/api-keys`) et récupère deux valeurs :
+
+   | Valeur | Où exactement |
+   | --- | --- |
+   | **Project URL** | Onglet *Data API*, champ « Project URL » |
+   | **Publishable key** | Onglet *API Keys*, section « Publishable key » — commence par `sb_publishable_` |
+
+   > **Tu cherches la clé `anon` et tu ne la trouves pas ?** Elle a été déplacée : elle vit désormais
+   > sous l'onglet **« Legacy API Keys »**. La *publishable key* la remplace et fonctionne à l'identique
+   > ici. Si aucune publishable key n'existe encore, clique sur **Create new API keys**.
+
+3. Renseigne-les dans `.env.local` :
 
    ```bash
    NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxx.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_xxxxxxxxxxxx
    ```
 
-Rien d'autre : pas de table, pas de policy RLS. La clé `anon` est publique par conception, elle ne donne
-accès qu'aux canaux Realtime utilisés ici.
+Rien d'autre : pas de table, pas de policy RLS. Cette clé est **publique par conception** — elle est
+livrée dans le bundle JavaScript envoyé au navigateur, donc la voir n'est pas une fuite. Ne jamais
+confondre avec la *secret key* / `service_role`, qui ne doit jamais sortir d'un serveur.
 
 > Realtime est actif par défaut sur les nouveaux projets. Si les votes ne circulent pas, vérifie dans
 > **Project Settings → Realtime** que la fonctionnalité est activée.
