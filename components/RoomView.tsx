@@ -109,7 +109,7 @@ function Table({
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-6xl flex-col px-4 pb-6 pt-6 sm:px-6">
+    <main className="mx-auto flex max-w-6xl flex-col px-4 pb-10 pt-6 sm:px-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <Link href="/" className="transition hover:opacity-80">
           <Logo />
@@ -158,7 +158,7 @@ function Table({
       ) : null}
 
       {/* The table */}
-      <section className="glass grain mt-6 flex-1 rounded-3xl p-5 sm:p-8">
+      <section className="glass grain mt-6 rounded-3xl p-5 sm:p-8">
         <div className="flex items-baseline justify-between gap-4">
           <h1 className="font-display text-lg font-semibold">
             Table
@@ -246,7 +246,7 @@ function Table({
       </section>
 
       {/* Deck */}
-      <section className="mt-5">
+      <section className="mt-6">
         <p className="mb-3 text-center text-xs font-medium uppercase tracking-[0.16em] text-white/35">
           {room.myVote ? `Ton vote : ${room.myVote}` : "Choisis ta carte"}
         </p>
