@@ -32,6 +32,11 @@ est inactif.
    | **Project URL** | Onglet *Data API*, champ « Project URL » |
    | **Publishable key** | Onglet *API Keys*, section « Publishable key » — commence par `sb_publishable_` |
 
+   > **Project URL = l'origine seule**, par ex. `https://abcdefgh.supabase.co`. Le bouton *Connect* du
+   > dashboard propose aussi l'endpoint REST (`.../rest/v1`) : collé tel quel, il enverrait le WebSocket
+   > Realtime sur `/rest/v1/realtime/v1/...` et la connexion serait refusée. L'app ramène désormais
+   > l'URL à son origine, donc les deux formes passent.
+
    > **Tu cherches la clé `anon` et tu ne la trouves pas ?** Elle a été déplacée : elle vit désormais
    > sous l'onglet **« Legacy API Keys »**. La *publishable key* la remplace et fonctionne à l'identique
    > ici. Si aucune publishable key n'existe encore, clique sur **Create new API keys**.
