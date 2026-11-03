@@ -31,3 +31,15 @@ export function KeyIcon({ className = base }: IconProps) {
     </svg>
   );
 }
+
+export function QrIcon({ className = base }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.7" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.7" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 20.5h1.5M20.5 14h.5" stroke="currentColor"
+        strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}

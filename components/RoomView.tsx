@@ -11,6 +11,8 @@ import { Results, buildTally } from "./Results";
 import { JoinForm } from "./JoinForm";
 import { ConfigWarning } from "./ConfigWarning";
 import { ThemeToggle } from "./ThemeToggle";
+import { ShareDialog } from "./ShareDialog";
+import { QrIcon } from "./Icons";
 import { useRoom } from "@/lib/useRoom";
 import { isConfigured } from "@/lib/supabase";
 import { NAME_KEY } from "@/lib/storage";
@@ -68,6 +70,7 @@ function Table({
   const [editingDeck, setEditingDeck] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   const tally = useMemo(() => buildTally(room.participants), [room.participants]);
   const topCount = tally[0]?.count ?? 0;
@@ -155,6 +158,16 @@ function Table({
           >
             <span className="font-display tracking-[0.18em]">{code}</span>
             <span className="text-fg-muted">{copied ? "copié ✓" : "copier le lien"}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSharing(true)}
+            aria-label="Afficher le code QR pour rejoindre au téléphone"
+            className="grid size-9 place-items-center rounded-full border border-line bg-panel
+              text-fg-muted transition hover:border-line-strong hover:text-fg"
+          >
+            <QrIcon className="size-[1.05rem]" />
           </button>
 
           <button
@@ -289,6 +302,8 @@ function Table({
       {editingDeck ? (
         <DeckEditor deck={room.deck} onApply={room.setDeck} onClose={() => setEditingDeck(false)} />
       ) : null}
+
+      {sharing ? <ShareDialog code={code} onClose={() => setSharing(false)} /> : null}
     </main>
   );
 }

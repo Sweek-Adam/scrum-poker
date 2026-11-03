@@ -10,6 +10,7 @@ Planning poker en temps réel. Un pseudo, un code de salle, et toute l'équipe e
   Les cartes `?` (je ne sais pas) et `☕` (pause) sont incluses par défaut et comptées comme abstentions —
   elles n'entrent pas dans la moyenne ni dans l'écart.
 - **Thème clair et sombre**, suivant le réglage du système, avec un bouton pour forcer l'un ou l'autre.
+- **Code QR** dans l'en-tête de la salle : les collègues scannent et arrivent sur la table, sans rien taper.
 
 ## Démarrer en local
 
@@ -95,6 +96,9 @@ Au-delà du contraste :
   majoritaire a une étiquette « majorité », chaque siège annonce son état en texte pour les lecteurs
   d'écran.
 - Le graphe des votes est `aria-hidden` et doublé d'une liste lisible.
+- Le code QR est toujours noir sur blanc, dans les deux thèmes : un QR inversé est refusé par beaucoup
+  de scanners. Il est doublé du code de salle et de l'URL en clair, parce qu'un lecteur d'écran ne peut
+  pas lire un QR et que tout le monde n'a pas un téléphone sous la main.
 - `prefers-reduced-motion` coupe les auroras animées et le retournement des cartes ;
   `prefers-contrast: more` raffermit les bordures et supprime les nuances de gris.
 - La perte de connexion est annoncée via `aria-live`, pas seulement recolorée.
