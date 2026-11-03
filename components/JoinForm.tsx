@@ -54,11 +54,11 @@ export function JoinForm({
       className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault();
-        if (!typedCode) {
-          setError("Entre un code de salle, ou crée une nouvelle partie.");
-          return;
-        }
-        go(typedCode);
+        // A room is only a Realtime channel, so joining one and creating it are
+        // the same act — hence a single button. Two buttons invited the reading
+        // that "create" needed its own code, and it used to draw one even when
+        // the field was filled. An empty field is the only case that draws one.
+        go(typedCode || createRoomCode());
       }}
     >
       <label className="flex flex-col gap-2">
@@ -87,10 +87,14 @@ export function JoinForm({
           }}
           placeholder="ABC123"
           inputMode="text"
+          aria-describedby="code-hint"
           className="rounded-xl border border-field bg-sunken px-4 py-3 font-display text-lg
             tracking-[0.3em] uppercase text-fg outline-none placeholder:tracking-[0.3em]
             placeholder:text-fg-subtle focus:border-accent-strong"
         />
+        <p id="code-hint" className="text-xs text-fg-subtle">
+          Laisse vide pour ouvrir une nouvelle salle avec un code au hasard.
+        </p>
       </label>
 
       {error ? (
@@ -99,26 +103,13 @@ export function JoinForm({
         </p>
       ) : null}
 
-      <div className="mt-1 flex flex-col gap-3 sm:flex-row">
-        <button
-          type="submit"
-          className="flex-1 rounded-xl border border-line-strong bg-panel px-5 py-3 font-medium text-fg
-            transition hover:border-accent-strong active:scale-[0.98]"
-        >
-          Rejoindre
-        </button>
-        {/* A room is only a Realtime channel, so creating one and joining it are
-            the same act. Honour the code that was typed instead of discarding it
-            and inventing another; only an empty field draws a fresh one. */}
-        <button
-          type="button"
-          onClick={() => go(typedCode || createRoomCode())}
-          className="flex-1 rounded-xl bg-gradient-to-r from-grad-from to-grad-to px-5 py-3 font-semibold
-            text-on-accent shadow-lg transition hover:brightness-110 active:scale-[0.98]"
-        >
-          {typedCode ? `Créer la salle ${typedCode}` : "Créer une partie"}
-        </button>
-      </div>
+      <button
+        type="submit"
+        className="mt-1 rounded-xl bg-gradient-to-r from-grad-from to-grad-to px-5 py-3 font-semibold
+          text-on-accent shadow-lg transition hover:brightness-110 active:scale-[0.98]"
+      >
+        Rejoindre la salle
+      </button>
     </form>
   );
 }
