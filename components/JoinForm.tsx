@@ -5,11 +5,20 @@ import { useRouter } from "next/navigation";
 import { createRoomCode, normalizeRoomCode } from "@/lib/room-code";
 import { NAME_KEY } from "@/lib/storage";
 
-export function JoinForm({ initialCode = "" }: { initialCode?: string }) {
+export function JoinForm({
+  initialCode = "",
+  onJoined,
+}: {
+  initialCode?: string;
+  /** Called instead of navigating when the visitor is already on this room's URL. */
+  onJoined?: (pseudo: string) => void;
+}) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [code, setCode] = useState(initialCode);
   const [error, setError] = useState<string | null>(null);
+
+  const typedCode = normalizeRoomCode(code);
 
   useEffect(() => {
     try {
@@ -30,6 +39,13 @@ export function JoinForm({ initialCode = "" }: { initialCode?: string }) {
     } catch {
       // Not critical, the pseudo just will not be remembered next time.
     }
+    // On the pseudo gate of /room/<code>, pushing that very URL navigates
+    // nowhere, so the gate stayed up until the visitor reloaded. Hand the pseudo
+    // to the parent instead and let it seat them straight away.
+    if (onJoined && targetCode === initialCode) {
+      onJoined(pseudo);
+      return;
+    }
     router.push(`/room/${targetCode}`);
   }
 
@@ -38,12 +54,11 @@ export function JoinForm({ initialCode = "" }: { initialCode?: string }) {
       className="flex flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault();
-        const target = normalizeRoomCode(code);
-        if (!target) {
+        if (!typedCode) {
           setError("Entre un code de salle, ou crée une nouvelle partie.");
           return;
         }
-        go(target);
+        go(typedCode);
       }}
     >
       <label className="flex flex-col gap-2">
@@ -92,13 +107,16 @@ export function JoinForm({ initialCode = "" }: { initialCode?: string }) {
         >
           Rejoindre
         </button>
+        {/* A room is only a Realtime channel, so creating one and joining it are
+            the same act. Honour the code that was typed instead of discarding it
+            and inventing another; only an empty field draws a fresh one. */}
         <button
           type="button"
-          onClick={() => go(createRoomCode())}
+          onClick={() => go(typedCode || createRoomCode())}
           className="flex-1 rounded-xl bg-gradient-to-r from-grad-from to-grad-to px-5 py-3 font-semibold
             text-on-accent shadow-lg transition hover:brightness-110 active:scale-[0.98]"
         >
-          Créer une partie
+          {typedCode ? `Créer la salle ${typedCode}` : "Créer une partie"}
         </button>
       </div>
     </form>

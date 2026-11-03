@@ -46,7 +46,7 @@ export function RoomView({ code }: { code: string }) {
               <ConfigWarning />
             </div>
           )}
-          <JoinForm initialCode={code} />
+          <JoinForm initialCode={code} onJoined={setName} />
         </div>
       </main>
     );
