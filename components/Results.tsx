@@ -36,7 +36,7 @@ export function Results({ participants, tally }: { participants: Participant[]; 
   const maxCount = tally[0]?.count ?? 1;
 
   if (cast.length === 0) {
-    return <p className="text-center text-sm text-white/40">Personne n&apos;a voté.</p>;
+    return <p className="text-center text-sm text-fg-muted">Personne n&apos;a voté.</p>;
   }
 
   return (
@@ -47,29 +47,38 @@ export function Results({ participants, tally }: { participants: Participant[]; 
       className="flex flex-col gap-6"
     >
       {unanimous ? (
-        <p className="rounded-xl border border-mint-400/35 bg-mint-400/10 px-4 py-2.5 text-center text-sm
-          font-medium text-mint-400">
+        <p className="rounded-xl border border-success bg-success-soft px-4 py-2.5 text-center text-sm
+          font-semibold text-success">
           🎉 Unanimité sur {estimates[0]} — on passe au ticket suivant.
         </p>
       ) : null}
 
-      <div className="flex flex-wrap items-end justify-center gap-3">
+      {/* A bar chart is a picture; the same numbers are in the list below for screen readers. */}
+      <div className="flex flex-wrap items-end justify-center gap-3" aria-hidden="true">
         {tally.map((entry) => (
           <div key={entry.value} className="flex w-14 flex-col items-center gap-1.5">
-            <span className="text-xs font-medium tabular-nums text-white/45">{entry.count}</span>
+            <span className="text-xs font-semibold tabular-nums text-fg-muted">{entry.count}</span>
             <motion.div
               initial={{ height: 4 }}
               animate={{ height: `${Math.max(12, (entry.count / maxCount) * 72)}px` }}
               transition={{ type: "spring", stiffness: 260, damping: 26 }}
-              className="w-full rounded-t-md bg-gradient-to-t from-accent-600/50 to-accent-400"
+              className="w-full rounded-t-md bg-gradient-to-t from-grad-to to-accent-strong"
             />
-            <span className="grid h-9 w-full place-items-center rounded-lg border border-white/12 bg-ink-800
-              font-display text-sm font-semibold">
+            <span className="grid h-9 w-full place-items-center rounded-lg border border-field bg-raised
+              font-display text-sm font-semibold text-fg">
               {entry.value}
             </span>
           </div>
         ))}
       </div>
+
+      <ul className="sr-only">
+        {tally.map((entry) => (
+          <li key={entry.value}>
+            {entry.value} : {entry.count} vote{entry.count > 1 ? "s" : ""}
+          </li>
+        ))}
+      </ul>
 
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Moyenne" value={average === null ? "—" : formatNumber(average)} />
@@ -87,10 +96,10 @@ export function Results({ participants, tally }: { participants: Participant[]; 
 
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="rounded-xl border border-white/8 bg-ink-900/50 px-3 py-2.5 text-center">
-      <dt className="text-[0.68rem] font-medium uppercase tracking-[0.12em] text-white/35">{label}</dt>
-      <dd className="mt-0.5 font-display text-xl font-semibold tabular-nums">{value}</dd>
-      {hint ? <p className="text-[0.68rem] text-white/30">{hint}</p> : null}
+    <div className="rounded-xl border border-line bg-raised px-3 py-2.5 text-center">
+      <dt className="text-xs font-semibold uppercase tracking-[0.1em] text-fg-muted">{label}</dt>
+      <dd className="mt-0.5 font-display text-xl font-semibold tabular-nums text-fg">{value}</dd>
+      {hint ? <p className="text-xs text-fg-subtle">{hint}</p> : null}
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { DeckEditor } from "./DeckEditor";
 import { Results, buildTally } from "./Results";
 import { JoinForm } from "./JoinForm";
 import { ConfigWarning } from "./ConfigWarning";
+import { ThemeToggle } from "./ThemeToggle";
 import { useRoom } from "@/lib/useRoom";
 import { isConfigured } from "@/lib/supabase";
 import { NAME_KEY } from "@/lib/storage";
@@ -34,9 +35,12 @@ export function RoomView({ code }: { code: string }) {
     return (
       <main className="mx-auto grid min-h-dvh max-w-md place-items-center px-4 py-10">
         <div className="glass w-full rounded-3xl p-7">
-          <Logo className="mb-6" />
+          <div className="mb-6 flex items-center justify-between gap-4">
+            <Logo />
+            <ThemeToggle />
+          </div>
           <h1 className="font-display text-2xl font-semibold">Salle {code}</h1>
-          <p className="mb-6 mt-1 text-sm text-white/45">Choisis un pseudo pour rejoindre la table.</p>
+          <p className="mb-6 mt-1 text-sm text-fg-muted">Choisis un pseudo pour rejoindre la table.</p>
           {isConfigured ? null : (
             <div className="mb-6">
               <ConfigWarning />
@@ -116,48 +120,53 @@ function Table({
         </Link>
 
         <div className="flex flex-wrap items-center gap-2">
-          {room.status === "error" ? (
-            <button
-              type="button"
-              onClick={room.reconnect}
-              className="inline-flex items-center gap-2 rounded-full border border-rose-400/40 bg-rose-500/15
-                px-3 py-1.5 text-xs font-medium text-rose-200 transition hover:bg-rose-500/25"
-            >
-              <span className="size-1.5 rounded-full bg-current" />
-              Hors ligne — reconnecter
-            </button>
-          ) : (
-            <span
-              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium
-                ${
-                  room.status === "live"
-                    ? "border-mint-400/30 bg-mint-400/10 text-mint-400"
-                    : "border-white/10 bg-white/5 text-white/50"
-                }`}
-            >
-              <span className="size-1.5 rounded-full bg-current" />
-              {room.status === "live" ? "En direct" : "Connexion…"}
-            </span>
-          )}
+          {/* Losing the connection is worth announcing, not just recolouring. */}
+          <div aria-live="polite">
+            {room.status === "error" ? (
+              <button
+                type="button"
+                onClick={room.reconnect}
+                className="inline-flex items-center gap-2 rounded-full border border-danger bg-danger-soft
+                  px-3 py-1.5 text-xs font-semibold text-danger transition hover:brightness-110"
+              >
+                <span className="size-1.5 rounded-full bg-current" />
+                Hors ligne — reconnecter
+              </button>
+            ) : (
+              <span
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold
+                  ${
+                    room.status === "live"
+                      ? "border-success bg-success-soft text-success"
+                      : "border-line bg-panel text-fg-muted"
+                  }`}
+              >
+                <span className="size-1.5 rounded-full bg-current" />
+                {room.status === "live" ? "En direct" : "Connexion…"}
+              </span>
+            )}
+          </div>
 
           <button
             type="button"
             onClick={copyLink}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3
-              py-1.5 text-sm transition hover:border-white/25 hover:bg-white/10"
+            className="inline-flex items-center gap-2 rounded-full border border-line bg-panel px-3
+              py-1.5 text-sm text-fg transition hover:border-line-strong"
           >
             <span className="font-display tracking-[0.18em]">{code}</span>
-            <span className="text-white/40">{copied ? "copié ✓" : "copier le lien"}</span>
+            <span className="text-fg-muted">{copied ? "copié ✓" : "copier le lien"}</span>
           </button>
 
           <button
             type="button"
             onClick={rename}
-            className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/60
-              transition hover:border-white/25 hover:text-white"
+            className="rounded-full border border-line bg-panel px-3 py-1.5 text-sm text-fg-muted
+              transition hover:border-line-strong hover:text-fg"
           >
             {name}
           </button>
+
+          <ThemeToggle />
         </div>
       </header>
 
@@ -172,13 +181,13 @@ function Table({
         <div className="flex items-baseline justify-between gap-4">
           <h1 className="font-display text-lg font-semibold">
             Table
-            <span className="ml-2 text-sm font-normal text-white/40">
+            <span className="ml-2 text-sm font-normal text-fg-muted">
               {room.participants.length} participant{room.participants.length > 1 ? "s" : ""} · {voted} vote
               {voted > 1 ? "s" : ""}
             </span>
           </h1>
           {everyoneVoted && !room.revealed ? (
-            <span className="text-sm font-medium text-mint-400">Tout le monde a voté ✦</span>
+            <span className="text-sm font-semibold text-success">Tout le monde a voté ✦</span>
           ) : null}
         </div>
 
@@ -197,13 +206,13 @@ function Table({
         </ul>
 
         {room.participants.length === 0 ? (
-          <p className="mt-6 text-center text-sm text-white/35">
+          <p className="mt-6 text-center text-sm text-fg-muted">
             {room.status === "live" ? "La salle est vide." : "Connexion à la salle…"}
           </p>
         ) : null}
 
         {room.revealed ? (
-          <div className="mt-10 border-t border-white/8 pt-7">
+          <div className="mt-10 border-t border-line pt-7">
             <Results participants={room.participants} tally={tally} />
           </div>
         ) : null}
@@ -214,24 +223,24 @@ function Table({
         <button
           type="button"
           onClick={room.toggleReveal}
-          className="rounded-xl bg-gradient-to-r from-accent-600 to-sky-cyan px-6 py-2.5 font-semibold
-            text-ink-950 shadow-lg shadow-accent-600/25 transition hover:brightness-110 active:scale-[0.98]"
+          className="rounded-xl bg-gradient-to-r from-grad-from to-grad-to px-6 py-2.5 font-semibold
+            text-on-accent shadow-lg transition hover:brightness-110 active:scale-[0.98]"
         >
           {room.revealed ? "Cacher les votes" : "Révéler les votes"}
         </button>
         <button
           type="button"
           onClick={room.resetVotes}
-          className="rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 transition
-            hover:border-white/25 hover:bg-white/10 active:scale-[0.98]"
+          className="rounded-xl border border-line-strong bg-panel px-5 py-2.5 text-fg transition
+            hover:border-accent-strong active:scale-[0.98]"
         >
           Nouveau tour
         </button>
         <button
           type="button"
           onClick={() => setEditingDeck(true)}
-          className="rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 transition
-            hover:border-white/25 hover:bg-white/10 active:scale-[0.98]"
+          className="rounded-xl border border-line-strong bg-panel px-5 py-2.5 text-fg transition
+            hover:border-accent-strong active:scale-[0.98]"
         >
           Deck ⚙
         </button>
@@ -247,8 +256,8 @@ function Table({
           }}
           className={`rounded-xl border px-5 py-2.5 transition active:scale-[0.98] ${
             confirmClear
-              ? "border-rose-400/60 bg-rose-500/20 text-rose-200"
-              : "border-white/10 bg-white/5 text-white/55 hover:border-rose-400/40 hover:text-rose-200"
+              ? "border-danger bg-danger-soft font-semibold text-danger"
+              : "border-line-strong bg-panel text-fg-muted hover:border-danger hover:text-danger"
           }`}
         >
           {confirmClear ? "Confirmer — vider ?" : "Vider la salle"}
@@ -257,7 +266,7 @@ function Table({
 
       {/* Deck */}
       <section className="mt-6">
-        <p className="mb-3 text-center text-xs font-medium uppercase tracking-[0.16em] text-white/35">
+        <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.16em] text-fg-muted">
           {room.status === "error"
             ? "Connexion perdue — nouvelle tentative en cours…"
             : room.myVote

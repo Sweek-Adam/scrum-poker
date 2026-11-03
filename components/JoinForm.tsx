@@ -47,7 +47,7 @@ export function JoinForm({ initialCode = "" }: { initialCode?: string }) {
       }}
     >
       <label className="flex flex-col gap-2">
-        <span className="text-xs font-medium uppercase tracking-[0.16em] text-white/45">Ton pseudo</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-fg-muted">Ton pseudo</span>
         <input
           value={name}
           onChange={(event) => {
@@ -56,13 +56,14 @@ export function JoinForm({ initialCode = "" }: { initialCode?: string }) {
           }}
           placeholder="Alex"
           autoComplete="nickname"
-          className="rounded-xl border border-white/10 bg-ink-900/70 px-4 py-3 text-base outline-none
-            placeholder:text-white/25 focus:border-accent-500/70"
+          aria-invalid={error !== null}
+          className="rounded-xl border border-field bg-sunken px-4 py-3 text-base text-fg outline-none
+            placeholder:text-fg-subtle focus:border-accent-strong"
         />
       </label>
 
       <label className="flex flex-col gap-2">
-        <span className="text-xs font-medium uppercase tracking-[0.16em] text-white/45">Code de salle</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-fg-muted">Code de salle</span>
         <input
           value={code}
           onChange={(event) => {
@@ -71,14 +72,14 @@ export function JoinForm({ initialCode = "" }: { initialCode?: string }) {
           }}
           placeholder="ABC123"
           inputMode="text"
-          className="rounded-xl border border-white/10 bg-ink-900/70 px-4 py-3 font-display text-lg
-            tracking-[0.3em] uppercase outline-none placeholder:tracking-[0.3em] placeholder:text-white/25
-            focus:border-accent-500/70"
+          className="rounded-xl border border-field bg-sunken px-4 py-3 font-display text-lg
+            tracking-[0.3em] uppercase text-fg outline-none placeholder:tracking-[0.3em]
+            placeholder:text-fg-subtle focus:border-accent-strong"
         />
       </label>
 
       {error ? (
-        <p role="alert" className="text-sm text-rose-300">
+        <p role="alert" className="text-sm font-medium text-danger">
           {error}
         </p>
       ) : null}
@@ -86,16 +87,16 @@ export function JoinForm({ initialCode = "" }: { initialCode?: string }) {
       <div className="mt-1 flex flex-col gap-3 sm:flex-row">
         <button
           type="submit"
-          className="flex-1 rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-medium
-            transition hover:border-white/25 hover:bg-white/10 active:scale-[0.98]"
+          className="flex-1 rounded-xl border border-line-strong bg-panel px-5 py-3 font-medium text-fg
+            transition hover:border-accent-strong active:scale-[0.98]"
         >
           Rejoindre
         </button>
         <button
           type="button"
           onClick={() => go(createRoomCode())}
-          className="flex-1 rounded-xl bg-gradient-to-r from-accent-600 to-sky-cyan px-5 py-3 font-semibold
-            text-ink-950 shadow-lg shadow-accent-600/25 transition hover:brightness-110 active:scale-[0.98]"
+          className="flex-1 rounded-xl bg-gradient-to-r from-grad-from to-grad-to px-5 py-3 font-semibold
+            text-on-accent shadow-lg transition hover:brightness-110 active:scale-[0.98]"
         >
           Créer une partie
         </button>

@@ -9,6 +9,7 @@ Planning poker en temps réel. Un pseudo, un code de salle, et toute l'équipe e
 - **Deck paramétrable** : presets Fibonacci / T-shirt / jours / puissances de 2, ou tes propres valeurs.
   Les cartes `?` (je ne sais pas) et `☕` (pause) sont incluses par défaut et comptées comme abstentions —
   elles n'entrent pas dans la moyenne ni dans l'écart.
+- **Thème clair et sombre**, suivant le réglage du système, avec un bouton pour forcer l'un ou l'autre.
 
 ## Démarrer en local
 
@@ -79,6 +80,27 @@ simultanés ne laissent personne désynchronisé.
 - **Nouveau tour** — efface les votes et re-cache les cartes, le deck est conservé.
 - **Vider la salle** — remise à zéro complète : votes effacés **et** deck remis aux valeurs par défaut.
   Demande une confirmation.
+
+## Accessibilité
+
+Les deux thèmes respectent **WCAG 2.1 niveau AA** : 4.5:1 pour le texte, 3:1 pour les contours de champs
+et les anneaux de focus. Les couleurs ne vivent pas dans les composants mais dans une couche de tokens
+(`app/globals.css`) : `--fg`, `--fg-muted`, `--panel`, `--field`… redéfinis une fois par thème. Pour
+ajouter une couleur, vérifie le ratio d'abord — quelques labels se promenaient à 3.21:1 et personne ne
+l'avait vu.
+
+Au-delà du contraste :
+
+- Aucune information n'est portée par la couleur seule — la carte choisie a une pastille ✓, la valeur
+  majoritaire a une étiquette « majorité », chaque siège annonce son état en texte pour les lecteurs
+  d'écran.
+- Le graphe des votes est `aria-hidden` et doublé d'une liste lisible.
+- `prefers-reduced-motion` coupe les auroras animées et le retournement des cartes ;
+  `prefers-contrast: more` raffermit les bordures et supprime les nuances de gris.
+- La perte de connexion est annoncée via `aria-live`, pas seulement recolorée.
+
+Le thème est posé par un script inline dans `<head>` (voir `lib/theme.ts`), donc la bonne palette est
+peinte dès la première image — sans choix enregistré, c'est `prefers-color-scheme` qui décide.
 
 ## Scripts
 
